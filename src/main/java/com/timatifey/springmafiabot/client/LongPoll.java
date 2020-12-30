@@ -1,9 +1,12 @@
 package com.timatifey.springmafiabot.client;
 
+import com.timatifey.springmafiabot.model.AiAnswer;
 import com.timatifey.springmafiabot.model.CommandHandler;
+import com.timatifey.springmafiabot.model.Query;
 import lombok.Data;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.stream.Collectors;
@@ -16,6 +19,7 @@ public class LongPoll implements Runnable {
 
     VkClient client;
     CommandHandler commandHandler;
+    RestTemplate template;
 
     private boolean stop;
 
@@ -27,6 +31,7 @@ public class LongPoll implements Runnable {
         this.ts = ts;
         this.client = client;
         this.commandHandler = new CommandHandler(client, config, template);
+        this.template = template;
         new Thread(this.commandHandler).start();
     }
 

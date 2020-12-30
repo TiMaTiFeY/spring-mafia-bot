@@ -40,9 +40,26 @@ public class VkClient {
         if (properties.length() > 0) {
             properties.deleteCharAt(0);
         }
-        final StringBuilder requestURL = new StringBuilder(
-                String.format(config.getRequestUrlTemplate(), methodName)
-        );
+        final StringBuilder requestURL = new StringBuilder(String.format(config.getRequestUrlTemplate(), methodName));
+        if (!props.isEmpty()) {
+            requestURL.append("?");
+            requestURL.append(properties.toString());
+        }
+        return requestURL.toString();
+    }
+
+    public static String getPostUrl(String template, String methodName, Map<String, Object> props) {
+        StringBuilder properties = new StringBuilder();
+        for (Map.Entry<String, Object> property : props.entrySet()) {
+            properties.append("&");
+            properties.append(property.getKey());
+            properties.append("=");
+            properties.append(property.getValue());
+        }
+        if (properties.length() > 0) {
+            properties.deleteCharAt(0);
+        }
+        final StringBuilder requestURL = new StringBuilder(String.format(template, methodName));
         if (!props.isEmpty()) {
             requestURL.append("?");
             requestURL.append(properties.toString());
@@ -90,6 +107,20 @@ public class VkClient {
         );
         logger.info("Trying GET REQUEST: " + request);
         final MessageResponse response = template.getForObject(request, MessageResponse.class);
+        return response;
+    }
+
+    public UserResponse getUserInfo(long id) {
+        final String request = getUrlRequest(
+                "users.get",
+                Map.of(
+                        "user_ids", id,
+                        "access_token", config.getToken(),
+                        "v", config.getVersionAPI()
+                )
+        );
+        logger.info("Trying GET REQUEST: " + request);
+        final UserResponse response = template.getForObject(request, UserResponse.class);
         return response;
     }
 }

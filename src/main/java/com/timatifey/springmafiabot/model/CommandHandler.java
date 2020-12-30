@@ -5,7 +5,6 @@ import com.timatifey.springmafiabot.client.MessageNewObj;
 import com.timatifey.springmafiabot.client.VkClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.concurrent.BlockingQueue;
@@ -36,10 +35,14 @@ public class CommandHandler implements Runnable {
         while (true) {
             try {
                 MessageNewObj command = queue.take();
+                CommandParser parser = new CommandParser(command.getBody());
+                logger.info(parser.toString());
+
                 final StringBuilder requestURL = new StringBuilder(config.getBotHook());
-                requestURL.append(command.getBody());
+                requestURL.append(parser.getCommand());
                 logger.info("Trying to run "+command.getBody());
                 logger.info("Trying POST: " + requestURL);
+
                 final String answer = template.postForObject(requestURL.toString(), command, String.class);
                 client.sendMessage(answer, command.getUser_id());
             } catch (InterruptedException e) {
