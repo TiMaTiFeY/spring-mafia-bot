@@ -5,6 +5,7 @@ import com.timatifey.springmafiabot.client.MessageNewObj;
 import com.timatifey.springmafiabot.client.VkClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.concurrent.BlockingQueue;
@@ -42,9 +43,14 @@ public class CommandHandler implements Runnable {
                 requestURL.append(parser.getCommand());
                 logger.info("Trying to run "+command.getBody());
                 logger.info("Trying POST: " + requestURL);
-
-                final String answer = template.postForObject(requestURL.toString(), command, String.class);
+                String answer;
+                try {
+                    answer = template.postForObject(requestURL.toString(), command, String.class);
+                } catch (HttpClientErrorException err) {
+                    answer = "Invalid command, please use /help for get the command list.";
+                }
                 client.sendMessage(answer, command.getUser_id());
+
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 break;

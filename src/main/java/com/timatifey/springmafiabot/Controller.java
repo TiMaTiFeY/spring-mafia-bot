@@ -9,9 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
@@ -19,10 +17,25 @@ public class Controller {
     private static final Logger logger = LoggerFactory.getLogger(Controller.class);
     private long idIterator = 0;
 
-    private Map<String, GameSession> sessionList = new HashMap<>();
+    private final Map<String, GameSession> sessionList = new HashMap<>();
 
     @Autowired
     VkClient client;
+
+    @PostMapping("/help")
+    public String help(@RequestBody MessageNewObj msg) {
+        StringBuilder sb = new StringBuilder("Команды:\n");
+        Class<?> clazz = this.getClass();
+        Arrays.stream(clazz.getDeclaredMethods())
+                .map(method -> method.getAnnotation(PostMapping.class))
+                .filter(Objects::nonNull)
+                .map(annotation -> annotation.value()[0])
+                .forEach(value -> {
+                    sb.append(value);
+                    sb.append("\n");
+                });
+        return sb.toString();
+    }
 
     @PostMapping("/hello")
     public String greeting(@RequestBody MessageNewObj msg) {
@@ -114,13 +127,8 @@ public class Controller {
         return "Invalid room name";
     }
 
-    @PostMapping("/gold_words")
+    @PostMapping("/golden_words")
     public String words(@RequestBody MessageNewObj msg) {
-        return "Витя - лох";
-    }
-
-    @PostMapping("/aiproject")
-    public String aiproject(@RequestBody MessageNewObj msg) {
         return "Витя - лох";
     }
 }
